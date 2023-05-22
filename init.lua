@@ -1,17 +1,18 @@
 --[[
 ---- Wishlist ----
-git repo dotfiles
 fix completion bug
-JDTLS
+JDTLS config
 Terminal in Vim
 custom color scheme
 
 restructure dot files
 Minical Mode
-current method name in status bar 
+go to definition gpb messages
+go to definition java lang/jar files
 git branch in status bar
 Organize imports
 highlight reassigned variables
+current method name in status bar 
 quickfix
 
 autoimport
@@ -21,6 +22,8 @@ customize warnings
 autoformat on save
 
 relative number?
+
+https://sookocheff.com/post/vim/neovim-java-ide/
 ]]--
 
 require("vars")
@@ -41,6 +44,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+  {"mfussenegger/nvim-jdtls"},
   {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
   {'numToStr/Comment.nvim', opts = {} },
   {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp' } },--autocomplete and autocomplete source from lsp,
@@ -100,7 +104,7 @@ vim.o.hlsearch = true
 vim.o.incsearch = true --show results while typing
 vim.o.ignorecase = true -- Case insensitive search
 vim.o.smartcase = true
-vim.wo.signcolumn = 'yes' -- keep sign column
+vim.wo.signcolumn = 'no' -- keep sign column
 vim.o.updatetime = 250 -- Time to write swp to disk
 vim.o.timeout = true
 vim.o.timeoutlen = 300
@@ -274,26 +278,28 @@ local servers = { --Language servers to install with mason
   },
 }
 
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+if not MINIMAL then 
+  -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
--- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
+  -- Ensure the servers above are installed
+  local mason_lspconfig = require 'mason-lspconfig'
 
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
-}
+  mason_lspconfig.setup {
+    ensure_installed = vim.tbl_keys(servers),
+  }
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-    }
-  end,
-}
+  mason_lspconfig.setup_handlers {
+    function(server_name)
+      require('lspconfig')[server_name].setup {
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = servers[server_name],
+      }
+    end,
+  }
+end
 
 -- nvim-cmp setup
 local cmp = require 'cmp'

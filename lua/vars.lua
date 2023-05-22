@@ -1,1 +1,1 @@
-MINIMAL = false
+MINIMAL = true
