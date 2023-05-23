@@ -1,12 +1,11 @@
 --[[
 ---- Wishlist ----
-fix completion bug
 JDTLS config
 Terminal in Vim
 custom color scheme
 
 restructure dot files
-Minical Mode
+Minimal Mode
 go to definition gpb messages
 go to definition java lang/jar files
 git branch in status bar
@@ -14,21 +13,35 @@ Organize imports
 highlight reassigned variables
 current method name in status bar 
 quickfix
+shada to save sessions
 
 autoimport
 methods as text objects
-test snippet
+unit test snippet
 customize warnings
 autoformat on save
 
 relative number?
+symbols outline?
+git blame
+debug
+run tests
+notifications?
 
 https://sookocheff.com/post/vim/neovim-java-ide/
-]]--
+https://github.com/antonk52/bad-practices.nvim
+]]--https://github.com/m4xshen/hardtime.nvim
 
 require("vars")
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+
+
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_python_provider = 0
+vim.g.loaded_python3_provider = 0
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -47,7 +60,7 @@ require('lazy').setup({
   {"mfussenegger/nvim-jdtls"},
   {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
   {'numToStr/Comment.nvim', opts = {} },
-  {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp' } },--autocomplete and autocomplete source from lsp,
+  {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },--autocomplete and autocomplete source from lsp,
   {'navarasu/onedark.nvim', priority = 1000, opts = { style = "light" },
     config = function()
       vim.cmd.colorscheme 'onedark'
@@ -278,7 +291,7 @@ local servers = { --Language servers to install with mason
   },
 }
 
-if not MINIMAL then 
+if not MINIMAL then
   -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
   local capabilities = vim.lsp.protocol.make_client_capabilities()
   capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
@@ -303,8 +316,15 @@ end
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
-
+local luasnip = require 'luasnip'
+require('luasnip.loaders.from_vscode').lazy_load()
+luasnip.config.setup {}
 cmp.setup {
+  snippet = {
+    expand = function(args)
+      luasnip.lsp_expand(args.body)
+    end
+  },
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
@@ -318,6 +338,8 @@ cmp.setup {
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
+      elseif luasnip.expand_or_locally_jumpable() then
+          luasnip.expand_or_jump()
       else
         fallback()
       end
@@ -325,6 +347,8 @@ cmp.setup {
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
+      elseif luasnip.locally_jumpable(-1) then
+        luasnip.jump(-1)
       else
         fallback()
       end
