@@ -1,11 +1,7 @@
 --[[
 ---- Wishlist ----
 JDTLS config
-Terminal in Vim
-custom color scheme
 
-restructure dot files
-Minimal Mode
 go to definition gpb messages
 go to definition java lang/jar files
 git branch in status bar
@@ -21,7 +17,10 @@ unit test snippet
 customize warnings
 autoformat on save
 
+Terminal in Vim
 relative number?
+restructure dot files
+Minimal Mode
 symbols outline?
 git blame
 debug
@@ -61,12 +60,7 @@ require('lazy').setup({
   {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
   {'numToStr/Comment.nvim', opts = {} },
   {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },--autocomplete and autocomplete source from lsp,
-  {'navarasu/onedark.nvim', priority = 1000, opts = { style = "light" },
-    config = function()
-      vim.cmd.colorscheme 'onedark'
-      vim.opt.background = 'light'
-    end,
-  },
+  {'ishan9299/nvim-solarized-lua'},
   {'nvim-telescope/telescope-fzf-native.nvim', build = 'make',
     cond = function()
       return vim.fn.executable 'make' == 1
@@ -108,6 +102,8 @@ require('lazy').setup({
   },
 }, {})
 
+vim.cmd.colorscheme 'solarized'
+vim.opt.background = 'light'
 vim.wo.number = true
 vim.o.mouse = 'a' --enable mouse for all modes
 vim.o.clipboard = 'unnamedplus'
@@ -279,10 +275,9 @@ end
 
 local servers = { --Language servers to install with mason
   clangd = {},
-  gopls = {},
-  jdtls = {},
+  --jdtls = {},
 
-  elixirls = {},
+  --elixirls = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
