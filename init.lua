@@ -180,7 +180,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'java', 'elixir', 'vimdoc', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'java', 'vimdoc', 'vim' },
 
   auto_install = false,
   highlight = { enable = true },
@@ -275,9 +275,6 @@ end
 
 local servers = { --Language servers to install with mason
   clangd = {},
-  --jdtls = {},
-
-  --elixirls = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
