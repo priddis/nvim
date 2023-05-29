@@ -1,31 +1,29 @@
 --[[
 ---- Wishlist ----
 JDTLS config
+  go to definition gpb messages
+  go to definition java lang/jar files | working for simple config
+  Organize imports
+  quickfix
+  autoimport
+  current method name in status bar 
+  methods as text objects
+  customize warnings
+  autoformat on save
+  symbols outline?
+  debug
+  run tests
 
-go to definition gpb messages
-go to definition java lang/jar files
 git branch in status bar
-Organize imports
-highlight reassigned variables
-current method name in status bar 
-quickfix
 shada to save sessions
-
-autoimport
-methods as text objects
 unit test snippet
-customize warnings
-autoformat on save
-
 Terminal in Vim
 relative number?
 restructure dot files
 Minimal Mode
-symbols outline?
 git blame
-debug
-run tests
 notifications?
+highlight reassigned variables
 
 https://sookocheff.com/post/vim/neovim-java-ide/
 https://github.com/antonk52/bad-practices.nvim
@@ -127,10 +125,6 @@ vim.o.shada = true
 
 --TODO what does this do
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true }) -- highlight yanked text
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -281,30 +275,31 @@ local servers = { --Language servers to install with mason
       telemetry = { enable = false },
     },
   },
+  jdtls = { customConfiguration = true } --customConfiguration means don't use lspconfig. config lives in ftplugin/java.lua
 }
 
-if not MINIMAL then
-  -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+-- nvim-cmp supports additional completion capabilities, so broadcast that to servers
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
-  -- Ensure the servers above are installed
-  local mason_lspconfig = require 'mason-lspconfig'
+-- Ensure the servers above are installed
+local mason_lspconfig = require 'mason-lspconfig'
 
-  mason_lspconfig.setup {
-    ensure_installed = vim.tbl_keys(servers),
-  }
+mason_lspconfig.setup {
+  ensure_installed = vim.tbl_keys(servers),
+}
 
-  mason_lspconfig.setup_handlers {
-    function(server_name)
+mason_lspconfig.setup_handlers {
+  function(server_name)
+    if servers[server_name] and not servers[server_name].customConfiguration then
       require('lspconfig')[server_name].setup {
         capabilities = capabilities,
         on_attach = on_attach,
         settings = servers[server_name],
       }
-    end,
-  }
-end
+    end
+  end,
+}
 
 -- nvim-cmp setup
 local cmp = require 'cmp'
