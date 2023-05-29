@@ -1,9 +1,9 @@
-VARS = require('vars')
+local vars = require('vars')
 
 local java_cmd = 'java'
 
-if VARS.JAVA then
-  java_cmd = VARS.JAVA
+if vars.java17 then
+  java_cmd = vars.java17
 end
 
 

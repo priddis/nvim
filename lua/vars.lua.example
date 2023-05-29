@@ -1,10 +1,13 @@
-MINIMAL = false
-JAVA20 = 'java'
+local vars = {
+  java17 = 'java',
 
-RUNTIMES = {
-  {
-    name = "JavaSE-11",
-    path = "/usr/java/jdk-11.0.7",
-    default = true
-  },
+  runtimes = {
+    {
+      name = "JavaSE-11",
+      path = "/usr/java/jdk-11.0.7",
+      default = true
+    },
+  }
 }
+
+return vars
