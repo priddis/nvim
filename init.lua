@@ -1,9 +1,7 @@
 --[[
 ---- Wishlist ----
 JDTLS config
-  go to definition gpb messages
-  go to definition java lang/jar files | working for simple config
-  Organize imports
+  go to definition gpb proto
   quickfix
   autoimport
   current method name in status bar 
@@ -29,7 +27,7 @@ https://sookocheff.com/post/vim/neovim-java-ide/
 https://github.com/antonk52/bad-practices.nvim
 ]]--https://github.com/m4xshen/hardtime.nvim
 
-require("vars")
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -72,14 +70,13 @@ require('lazy').setup({
   },
 
   -- Plugins for home use
-  {'tpope/vim-sleuth', enabled = not MINIMAL}, --Detect tabstop and shiftwidth automatically
-  {'folke/which-key.nvim', opts = {}, enabled = not MINIMAL}, -- Shows keybinds 
+  {'tpope/vim-sleuth' }, --Detect tabstop and shiftwidth automatically
+  {'folke/which-key.nvim', opts = {},}, -- Shows keybinds 
   {'neovim/nvim-lspconfig', dependencies = {
       { 'williamboman/mason.nvim', config = true }, --Automatic lsp install
       'williamboman/mason-lspconfig.nvim',
       { 'folke/neodev.nvim', opts = {} }
     },
-    enabled = not MINIMAL
   },
   {'lewis6991/gitsigns.nvim', -- Adds symbols in gutter for git diff
     opts = {
@@ -96,18 +93,18 @@ require('lazy').setup({
         vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
       end,
     },
-    enabled = not MINIMAL
   },
 }, {})
 
 vim.cmd.colorscheme 'solarized'
 vim.opt.background = 'light'
+vim.wo.relativenumber = true
 vim.wo.number = true
 vim.o.mouse = 'a' --enable mouse for all modes
 vim.o.clipboard = 'unnamedplus'
 vim.o.breakindent = true --word wrap lines are indented
 vim.o.undofile = true --save undo history
-vim.o.hlsearch = true
+vim.o.hlsearch = false
 vim.o.incsearch = true --show results while typing
 vim.o.ignorecase = true -- Case insensitive search
 vim.o.smartcase = true
@@ -240,33 +237,6 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnos
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
-local on_attach = function(_, bufnr) -- ran when LSP attaches
-  local nmap = function(keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
-    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
-  end
-
-  nmap('<leader>rn', vim.lsp.buf.rename, '[r]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[c]ode [a]ction')
-  nmap('gd', vim.lsp.buf.definition, '[g]oto [d]efinition')
-  nmap('gD', vim.lsp.buf.declaration, '[g]oto [D]eclaration')
-  nmap('gr', require('telescope.builtin').lsp_references, '[g]oto [r]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[g]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[d]ocument [s]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[w]orkspace [s]ymbols')
-  -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-    vim.lsp.buf.format()
-  end, { desc = 'Format current buffer with LSP' })
-end
-
 local servers = { --Language servers to install with mason
   clangd = {},
   lua_ls = {
@@ -275,7 +245,8 @@ local servers = { --Language servers to install with mason
       telemetry = { enable = false },
     },
   },
-  jdtls = { customConfiguration = true } --customConfiguration means don't use lspconfig. config lives in ftplugin/java.lua
+  --customConfiguration means don't use lspconfig. config is in ftplugin/java.lua
+  jdtls = { customConfiguration = true }
 }
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
@@ -294,7 +265,7 @@ mason_lspconfig.setup_handlers {
     if servers[server_name] and not servers[server_name].customConfiguration then
       require('lspconfig')[server_name].setup {
         capabilities = capabilities,
-        on_attach = on_attach,
+        on_attach = require("lsp_onattach"),
         settings = servers[server_name],
       }
     end
