@@ -29,7 +29,7 @@ local on_attach = function(client, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 
   if client.name == 'jdtls' then
-    require('jdtls').add_commands()
+    require('jdtls.setup').add_commands()
   end
 end
 
