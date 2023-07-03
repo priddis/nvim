@@ -56,7 +56,6 @@ require('lazy').setup({
   {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
   {'numToStr/Comment.nvim', opts = {} },
   {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },--autocomplete and autocomplete source from lsp,
-  {'ishan9299/nvim-solarized-lua'},
   {'nvim-telescope/telescope-fzf-native.nvim', build = 'make',
     cond = function()
       return vim.fn.executable 'make' == 1
@@ -96,8 +95,8 @@ require('lazy').setup({
   },
 }, {})
 
-vim.cmd.colorscheme 'solarized'
-vim.opt.background = 'light'
+vim.cmd.colorscheme 'ron'
+--vim.opt.background = 'light'
 vim.wo.relativenumber = true
 vim.wo.number = true
 vim.o.mouse = 'a' --enable mouse for all modes
@@ -142,6 +141,7 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
+    path_display = {"tail"}
   },
 }
 
