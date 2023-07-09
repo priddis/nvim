@@ -1,24 +1,22 @@
 --[[
 ---- Wishlist ----
 JDTLS config
-  go to definition gpb proto
-  quickfix
   autoimport
+  go to definition gpb proto
+  signature help https://github.com/mfussenegger/nvim-jdtls/discussions/124
   current method name in status bar 
   methods as text objects
   customize warnings
   autoformat on save
   symbols outline?
+  quickfix
   debug
-  run tests
 
+telescope list methods in file 
 git branch in status bar
-shada to save sessions
+shada to save sessions + leader key shortcut 
 unit test snippet
-Terminal in Vim
-relative number?
 restructure dot files
-Minimal Mode
 git blame
 notifications?
 highlight reassigned variables
@@ -54,7 +52,6 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   {"mfussenegger/nvim-jdtls"},
   {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
-  {'numToStr/Comment.nvim', opts = {} },
   {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },--autocomplete and autocomplete source from lsp,
   {'nvim-telescope/telescope-fzf-native.nvim', build = 'make',
     cond = function()
@@ -67,9 +64,7 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
-
-  -- Plugins for home use
-  {'tpope/vim-sleuth' }, --Detect tabstop and shiftwidth automatically
+  --{'tpope/vim-sleuth' }, --Detect tabstop and shiftwidth automatically. Probably not needed.
   {'folke/which-key.nvim', opts = {},}, -- Shows keybinds 
   {'neovim/nvim-lspconfig', dependencies = {
       { 'williamboman/mason.nvim', config = true }, --Automatic lsp install
@@ -77,25 +72,25 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} }
     },
   },
-  {'lewis6991/gitsigns.nvim', -- Adds symbols in gutter for git diff
-    opts = {
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-      on_attach = function(bufnr)
-        vim.keymap.set('n', '[c', require('gitsigns').prev_hunk, { buffer = bufnr, desc = 'Go to Previous Hunk' })
-        vim.keymap.set('n', ']c', require('gitsigns').next_hunk, { buffer = bufnr, desc = 'Go to Next Hunk' })
-        vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
-      end,
-    },
-  },
+  --{'lewis6991/gitsigns.nvim', -- Adds symbols in gutter for git diff
+  --  opts = {
+  --    signs = {
+  --      add = { text = '+' },
+  --      change = { text = '~' },
+  --      delete = { text = '_' },
+  --      topdelete = { text = '‾' },
+  --      changedelete = { text = '~' },
+  --    },
+  --    on_attach = function(bufnr)
+  --      vim.keymap.set('n', '[c', require('gitsigns').prev_hunk, { buffer = bufnr, desc = 'Go to Previous Hunk' })
+  --      vim.keymap.set('n', ']c', require('gitsigns').next_hunk, { buffer = bufnr, desc = 'Go to Next Hunk' })
+  --      vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
+  --    end,
+  --  },
+  --},
 }, {})
 
-vim.cmd.colorscheme 'habamax'
+vim.cmd.colorscheme 'ron'
 vim.wo.relativenumber = true
 vim.wo.number = true
 vim.o.mouse = 'a' --enable mouse for all modes
@@ -117,6 +112,19 @@ vim.o.shortmess = 'aoO' -- Use abbreviations for shorter messages
 vim.o.jumpoptions = 'stack'
 vim.o.wildignore = ".git,.hg,.svn,*.pyc,*.o,*.out,*.jpg,*.jpeg,*.png,*.gif,*.zip,**/tmp/**,*.DS_Store,**/node_modules/**" --ignore for diff mode
 vim.o.shada = true
+vim.o.autoindent = true
+vim.o.smartindent = true
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.expandtab = true
+vim.o.wrap = true
+vim.o.scrolloff = 8 -- Number of lines above/below cursor when scrolling
+vim.o.cmdwinheight = 1
+vim.o.cmdheight = 0
+--vim.o.colorcolumn = ""
+
+--status line 
+vim.opt.statusline = "%#Normal#%=%t"
 
 --TODO what does this do
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
