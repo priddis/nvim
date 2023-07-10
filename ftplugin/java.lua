@@ -2,14 +2,16 @@ local vars = require('vars')
 
 local java_cmd = 'java'
 
-if vars.java17 then
-  java_cmd = vars.java17
-end
+-- if vars.java17 then
+--   java_cmd = vars.java17
+-- end
 
 local mason_registry = require("mason-registry")
 if not mason_registry.is_installed("jdtls") then
   return
 end
+local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
+local workspace_dir = '/home/micah/.workspace/' .. project_name
 
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
 local workspace_dir = vim.fn.expand('$HOME/.workspace/' .. project_name)
@@ -35,12 +37,13 @@ local config = {
     '-configuration', jdtls_config,
     '-data', workspace_dir,
   },
-  root_dir = require('jdtls.setup').find_root({'gradlew'}),
+  root_dir = require('jdtls.setup').find_root({'gradlew','build.gradle'}),
 
   settings = {
     ["java.import.gradle.enabled"] = true,
     ["java.import.gradle.wrapper.enabled"] = true,
     ["java.jdt.ls.protobufSupport.enabled"] = true,
+    ["java.configuration.runtimes"] = vars.runtimes
   },
   init_options = {
     bundles = {}
