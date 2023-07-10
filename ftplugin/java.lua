@@ -13,6 +13,8 @@ end
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
 local workspace_dir = '/home/micah/.workspace/' .. project_name
 
+local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
+local workspace_dir = vim.fn.expand('$HOME/.workspace/' .. project_name)
 local jdtls_home = mason_registry.get_package("jdtls"):get_install_path()
 local jdtls_jar = vim.fn.glob(jdtls_home .. "/plugins/org.eclipse.equinox.launcher_*.jar")
 local jdtls_config = jdtls_home .. '/config_linux'
@@ -33,7 +35,7 @@ local config = {
     '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
     '-jar', jdtls_jar,
     '-configuration', jdtls_config,
-    '-data', workspace_dir
+    '-data', workspace_dir,
   },
   root_dir = require('jdtls.setup').find_root({'gradlew','build.gradle'}),
 
