@@ -4,17 +4,16 @@ JDTLS config
   autoimport
   go to definition gpb proto
   signature help https://github.com/mfussenegger/nvim-jdtls/discussions/124
-  current method name in status bar 
+  current method name in status bar
   methods as text objects
   customize warnings
-  autoformat on save
   symbols outline?
   quickfix
   debug
 
-telescope list methods in file 
+telescope list methods in file
 git branch in status bar
-shada to save sessions + leader key shortcut 
+shada to save sessions + leader key shortcut
 unit test snippet
 restructure dot files
 git blame
@@ -23,7 +22,8 @@ highlight reassigned variables
 
 https://sookocheff.com/post/vim/neovim-java-ide/
 https://github.com/antonk52/bad-practices.nvim
-]]--https://github.com/m4xshen/hardtime.nvim
+]]
+--https://github.com/m4xshen/hardtime.nvim
 
 
 vim.g.mapleader = ' '
@@ -50,26 +50,37 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  {"mfussenegger/nvim-jdtls"},
-  {'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } }, --Fuzzyfinder
-  {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },--autocomplete and autocomplete source from lsp,
-  {'nvim-telescope/telescope-fzf-native.nvim', build = 'make',
+  { "mfussenegger/nvim-jdtls" },
+  {
+    'nvim-telescope/telescope.nvim',
+    branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim' }
+  },                                                                                                  --Fuzzyfinder
+  { 'hrsh7th/nvim-cmp',       dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },        --autocomplete and autocomplete source from lsp,
+  {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    build = 'make',
     cond = function()
       return vim.fn.executable 'make' == 1
     end,
   },
 
-  {'nvim-treesitter/nvim-treesitter',dependencies = {
+  {
+    'nvim-treesitter/nvim-treesitter',
+    dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ':TSUpdate',
   },
   --{'tpope/vim-sleuth' }, --Detect tabstop and shiftwidth automatically. Probably not needed.
-  {'folke/which-key.nvim', opts = {},}, -- Shows keybinds 
-  {'neovim/nvim-lspconfig', dependencies = {
+  { 'folke/which-key.nvim', opts = {}, }, -- Shows keybinds
+  {
+    'neovim/nvim-lspconfig',
+    dependencies = {
       { 'williamboman/mason.nvim', config = true }, --Automatic lsp install
       'williamboman/mason-lspconfig.nvim',
-      { 'folke/neodev.nvim', opts = {} }
+      { 'folke/neodev.nvim',       opts = {} }
     },
   },
   --{'lewis6991/gitsigns.nvim', -- Adds symbols in gutter for git diff
@@ -93,24 +104,26 @@ require('lazy').setup({
 vim.cmd.colorscheme 'ron'
 vim.wo.relativenumber = true
 vim.wo.number = true
-vim.o.mouse = 'a' --enable mouse for all modes
+vim.o.mouse = 'a'        --enable mouse for all modes
 vim.o.clipboard = 'unnamedplus'
 vim.o.breakindent = true --word wrap lines are indented
-vim.o.undofile = true --save undo history
+vim.o.undofile = true    --save undo history
 vim.o.hlsearch = false
-vim.o.incsearch = true --show results while typing
-vim.o.ignorecase = true -- Case insensitive search
+vim.o.incsearch = true   --show results while typing
+vim.o.ignorecase = true  -- Case insensitive search
 vim.o.smartcase = true
 vim.wo.signcolumn = 'no' -- keep sign column
-vim.o.updatetime = 250 -- Time to write swp to disk
+vim.o.updatetime = 250   -- Time to write swp to disk
 vim.o.timeout = true
 vim.o.timeoutlen = 300
 vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true --24bit RGB in TUI
-vim.o.autoread = true --Load file changes automatically
-vim.o.shortmess = 'aoO' -- Use abbreviations for shorter messages
+vim.o.autoread = true      --Load file changes automatically
+vim.o.shortmess =
+'aoO'                      -- Use abbreviations for shorter messages
 vim.o.jumpoptions = 'stack'
-vim.o.wildignore = ".git,.hg,.svn,*.pyc,*.o,*.out,*.jpg,*.jpeg,*.png,*.gif,*.zip,**/tmp/**,*.DS_Store,**/node_modules/**" --ignore for diff mode
+vim.o.wildignore =
+".git,.hg,.svn,*.pyc,*.o,*.out,*.jpg,*.jpeg,*.png,*.gif,*.zip,**/tmp/**,*.DS_Store,**/node_modules/**" --ignore for diff mode
 vim.o.shada = true
 vim.o.autoindent = true
 vim.o.smartindent = true
@@ -123,11 +136,14 @@ vim.o.cmdwinheight = 1
 vim.o.cmdheight = 0
 --vim.o.colorcolumn = ""
 
---status line 
+--status line
 vim.opt.statusline = "%#Normal#%=%t"
 
 --TODO what does this do
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+
+vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
+
 
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true }) -- highlight yanked text
 vim.api.nvim_create_autocmd('TextYankPost', {
@@ -148,7 +164,7 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
-    path_display = {"tail"}
+    path_display = { "tail" }
   },
 }
 
@@ -244,7 +260,8 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnos
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
-local servers = { --Language servers to install with mason
+local servers = {
+  --Language servers to install with mason
   clangd = {},
   lua_ls = {
     Lua = {
@@ -304,7 +321,7 @@ cmp.setup {
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_locally_jumpable() then
-          luasnip.expand_or_jump()
+        luasnip.expand_or_jump()
       else
         fallback()
       end
