@@ -56,8 +56,8 @@ require('lazy').setup({
     branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim' }
-  },                                                                                                  --Fuzzyfinder
-  { 'hrsh7th/nvim-cmp',       dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } },        --autocomplete and autocomplete source from lsp,
+  },                                                                                           --Fuzzyfinder
+  { 'hrsh7th/nvim-cmp',       dependencies = { 'hrsh7th/cmp-nvim-lsp', "L3MON4D3/LuaSnip" } }, --autocomplete and autocomplete source from lsp,
   {
     'nvim-telescope/telescope-fzf-native.nvim',
     build = 'make',
@@ -297,8 +297,8 @@ mason_lspconfig.setup_handlers {
 }
 
 -- nvim-cmp setup
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
+local cmp = require('cmp')
+local luasnip = require('luasnip')
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 cmp.setup {
@@ -317,27 +317,17 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
   },
   sources = {
-    { name = 'nvim_lsp' },
+    {
+      name = 'nvim_lsp',
+      entry_filter = function(entry, ctx)
+        local kind = require('cmp.types').lsp.CompletionItemKind[entry:get_kind()]
+
+        if kind == "Text" then return false end
+        return true
+      end
+    },
   },
 }
 
