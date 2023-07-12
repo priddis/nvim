@@ -40,6 +40,7 @@ local config = {
   root_dir = require('jdtls.setup').find_root({'gradlew','build.gradle'}),
 
   settings = {
+    ["java.signatureHelp.enabled"] = true,
     ["java.import.gradle.enabled"] = true,
     ["java.import.gradle.wrapper.enabled"] = true,
     ["java.jdt.ls.protobufSupport.enabled"] = true,
