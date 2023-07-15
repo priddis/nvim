@@ -3,7 +3,6 @@
 JDTLS config
   autoimport
   go to definition gpb proto
-  current method name in status bar
   methods as text objects
   customize warnings
   symbols outline?
@@ -11,18 +10,15 @@ JDTLS config
   debug
 
 telescope list methods in file
-git branch in status bar
 shada to save sessions + leader key shortcut
 unit test snippet
 restructure dot files
 git blame
-notifications?
 highlight reassigned variables
 
-https://sookocheff.com/post/vim/neovim-java-ide/
 https://github.com/antonk52/bad-practices.nvim
-]]
 --https://github.com/m4xshen/hardtime.nvim
+]]
 
 
 vim.g.mapleader = ' '
@@ -100,9 +96,12 @@ require('lazy').setup({
   --},
 }, {})
 
+--status line defined in status.lua
+vim.opt.statusline = [[%!v:lua.require'status'.buildstatus()]]
+
 vim.cmd.colorscheme 'ron'
-vim.wo.relativenumber = true
-vim.wo.number = true
+vim.wo.relativenumber = false
+vim.wo.number = false
 vim.o.mouse = 'a'        --enable mouse for all modes
 vim.o.clipboard = 'unnamedplus'
 vim.o.breakindent = true --word wrap lines are indented
@@ -118,8 +117,7 @@ vim.o.timeoutlen = 300
 vim.o.completeopt = 'menuone,noselect'
 vim.o.termguicolors = true --24bit RGB in TUI
 vim.o.autoread = true      --Load file changes automatically
-vim.o.shortmess =
-'aoO'                      -- Use abbreviations for shorter messages
+vim.o.shortmess = 'aoO'    -- Use abbreviations for shorter messages
 vim.o.jumpoptions = 'stack'
 vim.o.wildignore =
 ".git,.hg,.svn,*.pyc,*.o,*.out,*.jpg,*.jpeg,*.png,*.gif,*.zip,**/tmp/**,*.DS_Store,**/node_modules/**" --ignore for diff mode
@@ -135,25 +133,7 @@ vim.o.cmdwinheight = 1
 vim.o.cmdheight = 0
 --vim.o.colorcolumn = ""
 
---status line
-local init_statusline = vim.api.nvim_create_augroup('init_statusline', {})
 
-vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'FocusGained' }, {
-  desc = 'git branch',
-  callback = function()
-    local branch = vim.fn.system "git branch --show-current"
-    if vim.v.shell_error ~= 0 then
-      vim.b.current_branch = ''
-      return
-    end
-    vim.b.current_branch = string.gsub(branch, "\n", "")
-  end,
-  group = init_statusline,
-})
-
-vim.opt.statusline = [[%{get(b:, 'current_branch', "")}%#Normal#%=%t]]
-
---TODO what does this do
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]

@@ -1,26 +1,38 @@
 --https://zignar.net/2022/01/21/a-boring-statusline-for-neovim/
 local M = {}
-function M.statusline()
-  local parts = {
-   [[%{luaeval("require'me'.diagnostic_status()")}]],
-  }
-  return table.concat(parts, '')
-end
 
+--Autocommand to get git branch if it exists
+local get_branch = vim.api.nvim_create_augroup('get_branch', {})
+vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'FocusGained' }, {
+    group = get_branch,
+    desc = 'git branch',
+    callback = function()
+        local branch = vim.fn.system "git branch --show-current"
+        if vim.v.shell_error ~= 0 then
+            vim.b.current_branch = ''
+            return
+        end
+        vim.b.current_branch = string.gsub(branch, "\n", "")
+    end,
+})
 
-function M.diagnostic_status()
-  -- count the number of diagnostics with severity warning
-  local num_errors = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-  -- If there are any errors only show the error count, don't include the number of warnings
-  if num_errors > 0 then
-    return ' 💀 ' .. num_errors .. ' '
-  end
-  -- Otherwise show amount of warnings, or nothing if there aren't any.
-  local num_warnings = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-  if num_warnings > 0 then
-    return ' 💩' .. num_warnings .. ' '
-  end
-  return ''
+function M.buildstatus()
+    local breadcrumbs = ''
+    local ts = require('nvim-treesitter')
+    if ts ~= nil and ts.statusline() ~= nil then
+        breadcrumbs = '% ' .. ts.statusline()
+    end
+
+    local branch_name = ''
+    if vim.b.current_branch ~= nil then
+        branch_name = '% ' .. vim.b.current_branch
+    end
+    return table.concat {
+        breadcrumbs,
+        ' %=', --Everything after is right aligned
+        branch_name,
+        ' %t'  --Displays current file
+    }
 end
 
 return M
