@@ -3,7 +3,6 @@
 JDTLS config
   autoimport
   go to definition gpb proto
-  signature help https://github.com/mfussenegger/nvim-jdtls/discussions/124
   current method name in status bar
   methods as text objects
   customize warnings
@@ -137,7 +136,22 @@ vim.o.cmdheight = 0
 --vim.o.colorcolumn = ""
 
 --status line
-vim.opt.statusline = "%#Normal#%=%t"
+local init_statusline = vim.api.nvim_create_augroup('init_statusline', {})
+
+vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'FocusGained' }, {
+  desc = 'git branch',
+  callback = function()
+    local branch = vim.fn.system "git branch --show-current"
+    if vim.v.shell_error ~= 0 then
+      vim.b.current_branch = ''
+      return
+    end
+    vim.b.current_branch = string.gsub(branch, "\n", "")
+  end,
+  group = init_statusline,
+})
+
+vim.opt.statusline = [[%{get(b:, 'current_branch', "")}%#Normal#%=%t]]
 
 --TODO what does this do
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
@@ -307,13 +321,14 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end
   },
+  keyword_length = 5,
   mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+    ['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
+    --['<C-Space>'] = cmp.mapping.complete {},
+    ['<C-Space>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
@@ -328,6 +343,10 @@ cmp.setup {
         return true
       end
     },
+    {
+      name = "buffer",
+      keyword_length = 5
+    }
   },
 }
 
