@@ -3,9 +3,6 @@
 JDTLS config
   autoimport
   go to definition gpb proto
-  methods as text objects
-  customize warnings
-  symbols outline?
   quickfix
   debug
 
@@ -14,9 +11,6 @@ unit test snippet
 restructure dot files
 git blame
 highlight reassigned variables
-
-https://github.com/antonk52/bad-practices.nvim
---https://github.com/m4xshen/hardtime.nvim
 ]]
 
 vim.g.mapleader = ' '
@@ -111,12 +105,14 @@ vim.o.wrap = true
 vim.o.scrolloff = 8 -- Number of lines above/below cursor when scrolling
 vim.o.cmdwinheight = 1
 vim.o.cmdheight = 0
+vim.o.formatoptions = 't'
 
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 --format on save
 vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
 
-local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true }) -- highlight yanked text
+-- highlight yanked text
+local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
 vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function()
     vim.highlight.on_yank()
@@ -151,7 +147,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
-vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [s]it [f]iles' })
+vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [g]it [f]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[s]earch [f]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[s]earch [h]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[s]earch current [w]ord' })
@@ -240,6 +236,7 @@ local servers = {
       telemetry = { enable = false },
     },
   },
+
   --customConfiguration means don't use lspconfig. config is in ftplugin/java.lua
   jdtls = { customConfiguration = true }
 }

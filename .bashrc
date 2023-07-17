@@ -1,6 +1,13 @@
 test -s ~/.alias && . ~/.alias || true
 PS1='\w> '
 
+#programs to install 
+#fzf
+#fd
+#ccache
+#zoxide
+#neovim
+#wezterm
 alias ll='ls -lah'
 alias fi='find . -type f'
 alias find='find . -type f'
