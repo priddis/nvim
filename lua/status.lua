@@ -1,9 +1,8 @@
 --https://zignar.net/2022/01/21/a-boring-statusline-for-neovim/
-local M = {}
 
 --Autocommand to get git branch if it exists
 local get_branch = vim.api.nvim_create_augroup('get_branch', {})
-vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'FocusGained' }, {
+vim.api.nvim_create_autocmd({ 'BufRead' }, {
     group = get_branch,
     desc = 'git branch',
     callback = function()
@@ -16,13 +15,36 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'FocusGained' }, {
     end,
 })
 
-function M.buildstatus()
-    local breadcrumbs = ''
-    local ts = require('nvim-treesitter')
-    if ts ~= nil and ts.statusline() ~= nil then
-        breadcrumbs = '% ' .. ts.statusline()
-    end
+local function strip_keywords(line)
+    line = string.gsub(line, "class", "")
+    line = string.gsub(line, "public", "")
+    line = string.gsub(line, "static", "")
+    line = string.gsub(line, "private", "")
+    line = string.gsub(line, "throws", "")
+    return line
+end
 
+local get_function = vim.api.nvim_create_augroup('get_function', {})
+vim.api.nvim_create_autocmd({ 'CursorHold' }, {
+    group = get_function,
+    desc = 'get function',
+    callback = function()
+        local ts = require('nvim-treesitter')
+        if ts ~= nil then
+            local status = ts.statusline()
+            if status ~= nil then
+                status = strip_keywords(status)
+                vim.b.breadcrumbs = status
+            end
+        end
+    end,
+})
+
+function BUILDSTATUS()
+    local breadcrumbs = ''
+    if vim.b.breadcrumbs ~= nil then
+        breadcrumbs = '% ' .. vim.b.breadcrumbs
+    end
     local branch_name = ''
     if vim.b.current_branch ~= nil then
         branch_name = '% ' .. vim.b.current_branch
@@ -35,4 +57,4 @@ function M.buildstatus()
     }
 end
 
-return M
+vim.opt.statusline = [[%!v:lua.BUILDSTATUS()]]

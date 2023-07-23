@@ -70,9 +70,8 @@ require('lazy').setup({
   },
 }, {})
 
---status line defined in status.lua
-vim.opt.statusline = [[%!v:lua.require'status'.buildstatus()]]
 
+require('status')
 vim.cmd.colorscheme 'ron'
 vim.wo.relativenumber = false
 vim.wo.number = false
@@ -85,7 +84,7 @@ vim.o.incsearch = true   --show results while typing
 vim.o.ignorecase = true  -- Case insensitive search
 vim.o.smartcase = true
 vim.wo.signcolumn = 'no' -- keep sign column
-vim.o.updatetime = 250   -- Time to write swp to disk
+vim.o.updatetime = 2000  -- Time to write swp to disk
 vim.o.timeout = true
 vim.o.timeoutlen = 300
 vim.o.completeopt = 'menuone,noselect'
@@ -110,6 +109,7 @@ vim.o.formatoptions = 't'
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 --format on save
 vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
+vim.cmd [[autocmd WinNew * wincmd L]]
 
 -- highlight yanked text
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
