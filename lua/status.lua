@@ -24,13 +24,18 @@ local function strip_keywords(line)
     return line
 end
 
-local get_function = vim.api.nvim_create_augroup('get_function', {})
+local highlight_reassignments = vim.api.nvim_create_augroup('highlight_reassignments', {})
 vim.api.nvim_create_autocmd({ 'CursorHold' }, {
-    group = get_function,
-    desc = 'get function',
+    group = highlight_reassignments
+    desc = 'highlight reassigned vars',
     callback = function()
         local ts = require('nvim-treesitter')
         if ts ~= nil then
+            local bufnr = vim.api.nvim_get_current_buf()
+            local parser = vim.treesitter.get_parser(bufnr, "java", {})
+            local tree = parser:parse()[1]
+            local root = tree:root()
+            --ts.highlight_node(node, buf, hl_namespace, hl_group)
             local status = ts.statusline()
             if status ~= nil then
                 status = strip_keywords(status)
@@ -57,4 +62,4 @@ function BUILDSTATUS()
     }
 end
 
-vim.opt.statusline = [[%!v:lua.BUILDSTATUS()]]
+--vim.opt.statusline = [[%!v:lua.BUILDSTATUS()]]

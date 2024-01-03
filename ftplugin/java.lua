@@ -1,54 +1,59 @@
-local vars = require('vars')
+--gitdir = vim.fs.find('.git', { type = 'directory', upward = true, stop = vim.loop.os_homedir()})[1]
+readme = vim.fs.find('README.md', { type = 'file', upward = true, stop = vim.loop.os_homedir(), path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))})[1]
+local client = vim.lsp.start({
+    name = 'mlsp',
+    cmd = {'/home/micah/code/lsp/zig-out/bin/lsp'},
+    root_dir = vim.fs.dirname(readme)
+  })
+local is_attached = vim.lsp.buf_attach_client(0,client)
 
-local java_cmd = 'java'
+local ns = vim.api.nvim_create_namespace "reassigned_namespace"
+local ts = require('nvim-treesitter')
+local ts_utils = require('nvim-treesitter.ts_utils')
 
--- if vars.java17 then
---   java_cmd = vars.java17
--- end
+vim.cmd([[highlight link ReassignedVariables Underlined]])
 
-local mason_registry = require("mason-registry")
-if not mason_registry.is_installed("jdtls") then
-  return
-end
-local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
-local workspace_dir = '/home/micah/.workspace/' .. project_name
+local underline_reassignments = vim.api.nvim_create_augroup('underline_reassignments', {})
+local assigned_vars = vim.treesitter.query.parse("java", [[(assignment_expression left: (identifier) @assigned) ]])
 
-local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
-local workspace_dir = vim.fn.expand('$HOME/.workspace/' .. project_name)
-local jdtls_home = mason_registry.get_package("jdtls"):get_install_path()
-local jdtls_jar = vim.fn.glob(jdtls_home .. "/plugins/org.eclipse.equinox.launcher_*.jar")
-local jdtls_config = jdtls_home .. '/config_linux'
+vim.api.nvim_create_autocmd({ 'WinScrolled', 'BufEnter', 'BufWritePost' }, {
+    group = underline_reassignments,
+    desc = 'underline reassigned vars',
+    callback = function()
+        if ts ~= nil then
+            local bufnr = vim.api.nvim_get_current_buf() 
+            local height = vim.api.nvim_win_get_height(0)
+            local cursor = vim.fn.getcurpos()
+            local start = math.max(cursor[2] - vim.fn.winline() - 5, 1)
+            local max_line = vim.fn.line('$')
+            local endl = math.min(start + height + 5, max_line)
+            --
+            -- Clearing the namespace removes the underline
+            vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+            -- Query for identifiers on the left hand side of an assignment. This does not include declarations.
+            local parser = vim.treesitter.get_parser(bufnr, "java", {})
+            local tree = parser:parse()[1]
+            local root = tree:root()
+            local word_set = {}
+            for id, node in assigned_vars:iter_captures(root, bufnr, 0, -1) do
+              local id_text = vim.treesitter.get_node_text(node, bufnr)
+              if word_set[id_text] == nil then
+                    word_set[id_text] = true
+              end
+            end
 
--- See `:help vim.lsp.start_client` for an overview of the supported `config` options.
-local config = {
-  on_attach = require("lsp_onattach"),
-  cmd = {
-    java_cmd,
-    '-Declipse.application=org.eclipse.jdt.ls.core.id1',
-    '-Dosgi.bundles.defaultStartLevel=4',
-    '-Declipse.product=org.eclipse.jdt.ls.core.product',
-    '-Dlog.protocol=true',
-    '-Dlog.level=ALL',
-    '-Xmx2g',
-    '--add-modules=ALL-SYSTEM',
-    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '-jar', jdtls_jar,
-    '-configuration', jdtls_config,
-    '-data', workspace_dir,
-  },
-  root_dir = require('jdtls.setup').find_root({'gradlew','build.gradle'}),
+            s = ""
+            for k, _ in pairs(word_set) do 
+                s = s .. k .. " "
+            end
 
-  settings = {
-    ["java.signatureHelp.enabled"] = true,
-    ["java.import.gradle.enabled"] = true,
-    ["java.import.gradle.wrapper.enabled"] = true,
-    ["java.jdt.ls.protobufSupport.enabled"] = true,
-    ["java.configuration.runtimes"] = vars.runtimes
-  },
-  init_options = {
-    bundles = {}
-  },
-}
-
-require('jdtls').start_or_attach(config)
+            -- Query again for identifiers that are in the word list and filter out method declarations
+            local query = [[( (identifier) @id (#any-of? @id ]] .. s .. [[) (#not-has-parent? @id method_declaration class_declaration))]]
+            local reassigned_vars = vim.treesitter.query.parse("java", query)
+            
+            for id, node in reassigned_vars:iter_captures(root, bufnr, start, endl) do
+              ts_utils.highlight_node(node, bufnr, ns, "ReassignedVariables")
+            end
+        end
+    end,
+})
