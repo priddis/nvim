@@ -1,11 +1,9 @@
---gitdir = vim.fs.find('.git', { type = 'directory', upward = true, stop = vim.loop.os_homedir()})[1]
-readme = vim.fs.find('README.md', { type = 'file', upward = true, stop = vim.loop.os_homedir(), path = vim.fs.dirname(vim.api.nvim_buf_get_name(0))})[1]
+local gitdir = vim.fs.dirname(vim.fs.find('.git', { type = 'directory', upward = true, stop = vim.loop.os_homedir()})[1])
 local client = vim.lsp.start({
     name = 'mlsp',
     cmd = {'/home/micah/code/lsp/zig-out/bin/lsp'},
-    root_dir = vim.fs.dirname(readme)
+    root_dir = gitdir
   })
-local is_attached = vim.lsp.buf_attach_client(0,client)
 
 local ns = vim.api.nvim_create_namespace "reassigned_namespace"
 local ts = require('nvim-treesitter')
